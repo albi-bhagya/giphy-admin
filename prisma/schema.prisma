@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String     @unique
+  favorites Favorite[]
+  logins    Login[]
+}
+
+model Login {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?  @db.ObjectId
+  createdAt DateTime @default(now())
+}
+
+enum Orientation {
+  horizontal
+  vertical
+}
+
+model Gif {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  giphyId     String       @unique
+  slug        String
+  title       String
+  url         String
+  username    String?
+  orientation Orientation?
+  favorites   Favorite[]
+}
+
+model Favorite {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  gif       Gif      @relation(fields: [gifId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  gifId     String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+
+  @@unique([gifId, userId], name: "FavoriteUniqueId")
+}
+
+model Search {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  keyword   String     @unique
+  timestamp DateTime[]
+}
