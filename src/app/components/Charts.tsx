@@ -16,6 +16,12 @@ export default function Charts() {
     e.preventDefault();
 
     if (startRef.current && endRef.current) {
+      if (new Date(startRef.current.value) > new Date(endRef.current.value)) {
+        const temp = startRef.current.value;
+        startRef.current.value = endRef.current.value;
+        endRef.current.value = temp;
+      }
+
       setStart(new Date(startRef.current.value));
       setEnd(new Date(Date.parse(endRef.current.value) + one_day));
     }

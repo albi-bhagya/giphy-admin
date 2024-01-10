@@ -10,13 +10,16 @@ import {
   ChartData,
 } from "chart.js";
 
+import ChartDataLabels from "chartjs-plugin-datalabels";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ChartDataLabels
 );
 
 import { Bar } from "react-chartjs-2";
@@ -36,6 +39,15 @@ export default function BarChart({ data, title }: BarChartProps) {
       title: {
         display: true,
         text: title,
+      },
+      datalabels: {
+        formatter: function (value: any, context: any) {
+          if (context.dataset.customLabels) {
+            return context.dataset.customLabels[context.dataIndex];
+          }
+
+          return "";
+        },
       },
     },
     scales: {

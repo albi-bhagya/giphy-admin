@@ -5,10 +5,16 @@ import { useEffect, useState } from "react";
 import IntervalSelector from "./IntervalSelector";
 import format from "@/lib/dateFormatter";
 import { ChartProps } from "@/lib/interfaces";
+import ReloadButton from "./ReloadButton";
 
 export default function UserChart({ start, end }: ChartProps) {
   const [userData, setUserData] = useState<any>([]);
   const [interval, setInterval] = useState<String>("day");
+  const [reload, toggleReload] = useState<boolean>(false);
+
+  const handleReload = () => {
+    toggleReload(!reload);
+  };
 
   useEffect(() => {
     (async () => {
@@ -26,7 +32,7 @@ export default function UserChart({ start, end }: ChartProps) {
 
       setUserData(data);
     })();
-  }, [interval, start, end]);
+  }, [interval, start, end, reload]);
 
   const data: ChartData<"bar", number[], string> = {
     labels:
@@ -43,12 +49,11 @@ export default function UserChart({ start, end }: ChartProps) {
   };
 
   return (
-    <div className="bg-gray-400 bg-opacity-20 rounded-xl p-2 w-full h-[40vh] relative">
-      <IntervalSelector
-        setInterval={setInterval}
-        interval={interval}
-        className="absolute top-5 right-5"
-      />
+    <div className="bg-gray-400 bg-opacity-20 rounded-xl p-4 py-8 w-full h-[40vh] relative">
+      <div className="absolute top-5 right-5 flex flex-row items-center gap-4">
+        <IntervalSelector setInterval={setInterval} interval={interval} />
+        <ReloadButton handler={handleReload} />
+      </div>
       <BarChart data={data} title={`Active users per ${interval}`} />
     </div>
   );
