@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
         {
           $group: {
             _id: intervalParams,
-            favorite_count: {
+            count: {
               $sum: 1,
             },
           },
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
               $mergeObjects: [
                 "$_id",
                 {
-                  favorite_count: "$favorite_count",
+                  count: "$count",
                 },
               ],
             },
@@ -78,8 +78,9 @@ export async function POST(req: NextRequest) {
         },
         {
           $sort: {
-            primary: 1,
+            tertiary: 1,
             secondary: 1,
+            primary: 1,
           },
         },
       ],
@@ -88,9 +89,6 @@ export async function POST(req: NextRequest) {
     if (!favorites) {
       return NextResponse.json({ data: [] }, { status: 204 });
     }
-
-    // favorites.sort();
-    console.log(typeof favorites);
 
     return NextResponse.json({ data: favorites }, { status: 200 });
   } catch (err: any) {

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import intervalParamsGenerator from "../helpers/intervalParamsGenerator";
 import prisma from "@/lib/ds";
-import { group } from "console";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +12,10 @@ export async function POST(req: NextRequest) {
 
     let startDate: Date | string = new Date(String(start));
     let endDate: Date | string = end ? new Date(String(end)) : new Date();
-    let intervalParams = intervalParamsGenerator(interval);
+    let intervalParams = {
+      ...intervalParamsGenerator(interval),
+      keyword: "$keyword",
+    };
 
     if (startDate > endDate) {
       return NextResponse.json(
@@ -60,8 +62,22 @@ export async function POST(req: NextRequest) {
         {
           $group: {
             _id: intervalParams,
-            words: {
-              $push: "$keyword",
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              primary: "$_id.primary",
+              secondary: "$_id.secondary",
+            },
+            keywords: {
+              $push: {
+                keyword: "$_id.keyword",
+                count: "$count",
+              },
             },
           },
         },
@@ -71,7 +87,7 @@ export async function POST(req: NextRequest) {
               $mergeObjects: [
                 "$_id",
                 {
-                  words: "$words",
+                  keywords: "$keywords",
                 },
               ],
             },
@@ -79,6 +95,7 @@ export async function POST(req: NextRequest) {
         },
         {
           $sort: {
+            tertiary: 1,
             primary: 1,
             secondary: 1,
           },
@@ -87,10 +104,21 @@ export async function POST(req: NextRequest) {
     });
 
     if (!keywords || keywords.length === 0) {
-      return NextResponse.json({ data: [] }, { status: 204 });
+      return NextResponse.json({ data: [] }, { status: 404 });
     }
 
-    return NextResponse.json({ data: keywords }, { status: 200 });
+    let updatedKeywords = JSON.parse(JSON.stringify(keywords));
+    updatedKeywords.map((el: any) => {
+      let temp = el.keywords;
+      temp.sort((a: any, b: any) => b.count - a.count);
+      temp = temp.slice(0, 5);
+      return {
+        ...el,
+        keywords: temp,
+      };
+    });
+
+    return NextResponse.json({ data: updatedKeywords }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json(
       { message: `Error: ${err.message}` },
