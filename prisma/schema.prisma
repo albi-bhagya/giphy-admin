@@ -55,7 +55,7 @@ model Favorite {
 model Search {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   keyword   String
-  timestamp DateTime
+  createdAt DateTime
 
-  @@unique([keyword, timestamp], name: "uniqueKeyword")
+  @@unique([keyword, createdAt], name: "uniqueKeyword")
 }

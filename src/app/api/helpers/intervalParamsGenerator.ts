@@ -9,7 +9,7 @@ export default function intervalParamsGenerator(
           $week: "$createdAt",
         },
         secondary: {
-          $month: "$createdAt",
+          $year: "$createdAt",
         },
       };
       break;
@@ -20,6 +20,9 @@ export default function intervalParamsGenerator(
         },
         secondary: {
           $month: "$createdAt",
+        },
+        tertiary: {
+          $year: "$createdAt",
         },
       };
       break;
