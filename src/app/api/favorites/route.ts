@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     startDate = startDate.toISOString();
     endDate = endDate.toISOString();
 
-    const favorites = await prisma.login.aggregateRaw({
+    const favorites = await prisma.favorite.aggregateRaw({
       pipeline: [
         {
           $match: {

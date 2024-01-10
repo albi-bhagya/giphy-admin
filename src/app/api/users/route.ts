@@ -89,8 +89,8 @@ export async function POST(req: NextRequest) {
         {
           $sort: {
             tertiary: 1,
-            primary: 1,
             secondary: 1,
+            primary: 1,
           },
         },
       ],
